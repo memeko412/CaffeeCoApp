@@ -8,6 +8,7 @@ namespace CaffeeCoApp.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly IWebHostEnvironment environment;
+        private readonly int pageSize = 10;
 
         public ProductsController(ApplicationDbContext context, IWebHostEnvironment environment)
         {
@@ -15,9 +16,20 @@ namespace CaffeeCoApp.Controllers
             this.environment = environment;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int pageIndex)
         {
-            var products = context.Products.OrderByDescending(products => products.Id).ToList();
+            IQueryable<Product> query = context.Products.OrderByDescending(products => products.Id);
+
+            if (pageIndex < 1) pageIndex = 1;
+
+            decimal productCount = query.Count();
+            int totalPages = (int)Math.Ceiling(productCount / pageSize);
+
+
+            var products = query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+
+            ViewData["PageIndex"] = pageIndex;
+            ViewData["TotalPages"] = totalPages; 
             return View(products);
         }
 
