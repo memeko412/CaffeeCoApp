@@ -164,5 +164,20 @@ namespace CaffeeCoApp.Controllers
 
 
         }
+
+        public IActionResult Delete(int id)
+        {
+            var product = context.Products.Find(id);
+            if(product == null) return RedirectToAction("Index", "Products");
+
+            string imagePath = environment.WebRootPath + "/products/" + product.ImageFileName;
+            System.IO.File.Delete(imagePath);
+
+            context.Products.Remove(product);
+            context.SaveChanges();
+
+            return RedirectToAction("Index", "Products");
+        }
+
     }
 }
