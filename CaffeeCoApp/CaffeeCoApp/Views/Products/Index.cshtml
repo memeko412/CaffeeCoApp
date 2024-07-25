@@ -1,10 +1,21 @@
-﻿@model List<Product>
+﻿@using Microsoft.AspNetCore.Html
+@model List<Product>
 @{
     int pageIndex = (int)ViewData["PageIndex"]!;
     int totalPages = (int)ViewData["TotalPages"]!;
     string search = (string)ViewData["Search"]!;
     string column = (string)ViewData["Column"]!;
     string orderBy = (string)ViewData["OrderBy"]!;
+
+    HtmlString getOrdArrow(string tableColumn)
+    {
+        if (tableColumn == column)
+        {
+            if (orderBy == "asc") return new HtmlString("<i class='bi bi-arrow-up'></i>");
+            else return new HtmlString("<i class='bi bi-arrow-down'></i>");
+        }
+        return new HtmlString("");
+    }
 }
 
 <h2 class="text-center mb-5">List of Products</h2>
@@ -39,14 +50,14 @@
 <table class="table">
     <thead>
         <tr>
-            <th style="cursor: pointer;" onclick="sortTable('Id')">ID</th>
-            <th style="cursor: pointer;" onclick="sortTable('Name')">Name</th>
-            <th style="cursor: pointer;" onclick="sortTable('Brand')">Brand</th>
-            <th style="cursor: pointer;" onclick="sortTable('Category')">Category</th>
-            <th style="cursor: pointer;" onclick="sortTable('Price')">Price</th>
-            <th style="cursor: pointer;" onclick="sortTable('Stock')">Stock</th>
+            <th style="cursor: pointer;" onclick="sortTable('Id')">ID @getOrdArrow("Id")</th>
+            <th style="cursor: pointer;" onclick="sortTable('Name')">Name @getOrdArrow("Name")</th>
+            <th style="cursor: pointer;" onclick="sortTable('Brand')">Brand @getOrdArrow("Brand")</th>
+            <th style="cursor: pointer;" onclick="sortTable('Category')">Category @getOrdArrow("Category")</th>
+            <th style="cursor: pointer;" onclick="sortTable('Price')">Price @getOrdArrow("Price")</th>
+            <th style="cursor: pointer;" onclick="sortTable('Stock')">Stock @getOrdArrow("Stock")</th>
             <th>Image</th>
-            <th style="cursor: pointer;" onclick="sortTable('CreatedAt')">Created At</th>
+            <th style="cursor: pointer;" onclick="sortTable('CreatedAt')">Created At @getOrdArrow("CreatedAt")</th>
             <th>Action</th>
         </tr>
     </thead>
