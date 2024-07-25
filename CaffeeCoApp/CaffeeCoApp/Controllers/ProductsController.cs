@@ -17,5 +17,10 @@ namespace CaffeeCoApp.Controllers
             var products = context.Products.OrderByDescending(products => products.Id).ToList();
             return View(products);
         }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
     }
 }
