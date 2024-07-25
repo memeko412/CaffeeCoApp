@@ -16,12 +16,100 @@ namespace CaffeeCoApp.Controllers
             this.environment = environment;
         }
 
-        public IActionResult Index(int pageIndex, string? search)
+        public IActionResult Index(int pageIndex, string? search, string? column, string? orderBy)
         {
-            IQueryable<Product> query = context.Products.OrderByDescending(products => products.Id);
+            IQueryable<Product> query = context.Products;
 
+            // search products
             if (search != null) query = query.Where(product => product.Name.ToLower().Contains(search.ToLower()) || product.Brand.ToLower().Contains(search.ToLower()) || product.Category.ToLower().Contains(search.ToLower()));
 
+
+            // sort products
+            string[] validCols = {"Id", "Name", "Brand", "Category", "Price", "Stock", "CreatedAt" };
+            string[] validOrderBys = { "desc", "asc" };
+
+                if (column == "Name")
+                {
+                    if (orderBy == "asc")
+                    {
+                        query = query.OrderBy(product => product.Name);
+                    }
+                    else
+                    {
+                        query = query.OrderByDescending(product => product.Name);
+                    }
+                }
+                else if (column == "Brand")
+                {
+                    if (orderBy == "asc")
+                    {
+                        query = query.OrderBy(product => product.Brand);
+                    }
+                    else
+                    {
+                        query = query.OrderByDescending(product => product.Brand);
+                    }
+                }
+                else if (column == "Category")
+                {
+                    if (orderBy == "asc")
+                    {
+                        query = query.OrderBy(product => product.Category);
+                    }
+                    else
+                    {
+                        query = query.OrderByDescending(product => product.Category);
+                    }
+                }
+                else if (column == "Price")
+                {
+                    if (orderBy == "asc")
+                    {
+                        query = query.OrderBy(product => product.Price);
+                    }
+                    else
+                    {
+                        query = query.OrderByDescending(product => product.Price);
+                    }
+                }
+                else if (column == "Stock")
+                {
+                    if (orderBy == "asc")
+                    {
+                        query = query.OrderBy(product => product.Stock);
+                    }
+                    else
+                    {
+                        query = query.OrderByDescending(product => product.Stock);
+                    }
+                }
+                else if (column == "CreatedAt")
+                {
+                    if (orderBy == "asc")
+                    {
+                        query = query.OrderBy(product => product.CreatedAt);
+                    }
+                    else
+                    {
+                        query = query.OrderByDescending(product => product.CreatedAt);
+                    }
+                }
+                else
+                {
+                    if (orderBy == "asc")
+                    {
+                        query = query.OrderBy(product => product.Id);
+                    }
+                    else
+                    {
+                        query = query.OrderByDescending(product => product.Id);
+                    }
+                }
+
+            // pagination
+            if (!validCols.Contains(column)) column = "Id";
+
+            if (!validOrderBys.Contains(orderBy)) orderBy = "desc";
 
             if (pageIndex < 1) pageIndex = 1;
 
@@ -33,6 +121,8 @@ namespace CaffeeCoApp.Controllers
 
             ViewData["PageIndex"] = pageIndex;
             ViewData["TotalPages"] = totalPages;
+            ViewData["Column"] = column;
+            ViewData["OrderBy"] = orderBy;
             ViewData["Search"] = search ?? "";
 
             return View(products);
