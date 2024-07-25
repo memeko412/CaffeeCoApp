@@ -33,6 +33,8 @@ namespace CaffeeCoApp.Controllers
 
             if (!ModelState.IsValid) return View(productDto);
 
+
+            // check if the image file has valid extension
             var validExtensions = new[] {".jpg", ".jpeg", ".png"};
             
             string fileExtension = Path.GetExtension(productDto.ImageFile.FileName);
@@ -40,6 +42,7 @@ namespace CaffeeCoApp.Controllers
             if(!validExtensions.Contains(fileExtension) ) ModelState.AddModelError("ImageFile", "The image must be a jpg, jpeg or png file");
 
 
+            // save image file
             string newImageFileName = DateTime.Now.ToString("yyyyMMddHHmmssFFF");
             newImageFileName += Path.GetExtension(fileExtension);
 
@@ -93,6 +96,73 @@ namespace CaffeeCoApp.Controllers
             ViewData["CreatedAt"] = product.CreatedAt.ToString("MM/dd/yyyy");
 
             return View(productDto);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(int id, ProductDto productDto)
+        {
+            var product = context.Products.Find(id);
+
+            if (product == null) return RedirectToAction("Index", "Products");
+
+
+            // check if the image file has valid extension
+            if (productDto.ImageFile != null)
+            {
+                var validExtensions = new[] { ".jpg", ".jpeg", ".png" };
+
+                string fileExtension = Path.GetExtension(productDto.ImageFile.FileName);
+
+                if (!validExtensions.Contains(fileExtension)) ModelState.AddModelError("ImageFile", "The image must be a jpg, jpeg or png file");
+            }
+
+            if (!ModelState.IsValid) 
+            {
+                ViewData["ProductId"] = product.Id;
+                ViewData["ImageFileName"] = product.ImageFileName;
+                ViewData["CreatedAt"] = product.CreatedAt.ToString("MM/dd/yyyy");
+                return View(productDto);
+            }
+
+            string newImageFileName = product.ImageFileName;
+
+            // update image file if there is one
+            if (productDto.ImageFile != null)
+            {
+                var validExtensions = new[] { ".jpg", ".jpeg", ".png" };
+
+                string fileExtension = Path.GetExtension(productDto.ImageFile.FileName);
+
+                newImageFileName = DateTime.Now.ToString("yyyyMMddHHmmssFFF");
+                newImageFileName += fileExtension;
+
+                string fullPath = environment.WebRootPath + "/products/" + newImageFileName;
+                using (var stream = System.IO.File.Create(fullPath))
+                {
+                    productDto.ImageFile.CopyTo(stream);
+                }
+
+                // delete old image file
+                string oldImagePath = environment.WebRootPath + "/products/" + product.ImageFileName;
+                System.IO.File.Delete(oldImagePath);
+            }
+
+
+            // update product in database
+            product.Name = productDto.Name;
+            product.Brand = productDto.Brand;   
+            product.Category = productDto.Category;
+            product.Price = productDto.Price;
+            product.Stock = productDto.Stock;
+            product.Description = productDto.Description;
+            product.ImageFileName = newImageFileName;
+
+
+            context.SaveChanges();
+
+            return RedirectToAction("Index", "Products");
+
+
         }
     }
 }
