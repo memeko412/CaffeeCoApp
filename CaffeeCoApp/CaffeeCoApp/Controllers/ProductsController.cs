@@ -16,9 +16,12 @@ namespace CaffeeCoApp.Controllers
             this.environment = environment;
         }
 
-        public IActionResult Index(int pageIndex)
+        public IActionResult Index(int pageIndex, string? search)
         {
             IQueryable<Product> query = context.Products.OrderByDescending(products => products.Id);
+
+            if (search != null) query = query.Where(product => product.Name.ToLower().Contains(search.ToLower()) || product.Brand.ToLower().Contains(search.ToLower()) || product.Category.ToLower().Contains(search.ToLower()));
+
 
             if (pageIndex < 1) pageIndex = 1;
 
@@ -29,7 +32,9 @@ namespace CaffeeCoApp.Controllers
             var products = query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
 
             ViewData["PageIndex"] = pageIndex;
-            ViewData["TotalPages"] = totalPages; 
+            ViewData["TotalPages"] = totalPages;
+            ViewData["Search"] = search ?? "";
+
             return View(products);
         }
 
