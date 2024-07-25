@@ -6,7 +6,7 @@ namespace CaffeeCoApp.Models
     {
         [Required, MaxLength(100)]
         public string Name { get; set; } = "";
-        [MaxLength(100)]
+        [Required, MaxLength(100)]
         public string Brand { get; set; } = "";
         [Required, MaxLength(100)]
         public string Category { get; set; } = "";

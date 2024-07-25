@@ -3,6 +3,8 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+/CaffeeCoApp/CaffeeCoApp/wwwroot/products
+
 # dotenv files
 .env
 

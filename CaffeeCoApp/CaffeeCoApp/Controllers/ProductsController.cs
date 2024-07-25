@@ -1,4 +1,5 @@
-﻿using CaffeeCoApp.Services;
+﻿using CaffeeCoApp.Models;
+using CaffeeCoApp.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CaffeeCoApp.Controllers
@@ -6,10 +7,12 @@ namespace CaffeeCoApp.Controllers
     public class ProductsController : Controller
     {
         private readonly ApplicationDbContext context;
+        private readonly IWebHostEnvironment environment;
 
-        public ProductsController(ApplicationDbContext context)
+        public ProductsController(ApplicationDbContext context, IWebHostEnvironment environment)
         {
             this.context = context;
+            this.environment = environment;
         }
 
         public IActionResult Index()
@@ -21,6 +24,75 @@ namespace CaffeeCoApp.Controllers
         public IActionResult Create()
         {
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult Create(ProductDto productDto)
+        {
+            if (productDto.ImageFile == null) ModelState.AddModelError("ImageFile", "The image is required");
+
+            if (!ModelState.IsValid) return View(productDto);
+
+            var validExtensions = new[] {".jpg", ".jpeg", ".png"};
+            
+            string fileExtension = Path.GetExtension(productDto.ImageFile.FileName);
+
+            if(!validExtensions.Contains(fileExtension) ) ModelState.AddModelError("ImageFile", "The image must be a jpg, jpeg or png file");
+
+
+            string newImageFileName = DateTime.Now.ToString("yyyyMMddHHmmssFFF");
+            newImageFileName += Path.GetExtension(fileExtension);
+
+            string fullPath = environment.WebRootPath + "/products/" + newImageFileName;
+            using (var stream = System.IO.File.Create(fullPath)) 
+            { 
+                productDto.ImageFile.CopyTo(stream); 
+            }
+
+            Product product = new Product()
+            {
+                Name = productDto.Name,
+                Brand = productDto.Brand,
+                Category = productDto.Category,
+                Price = productDto.Price,
+                Stock = productDto.Stock,
+                ImageFileName = newImageFileName,
+                Description = productDto.Description,
+                CreatedAt = DateTime.Now
+            };
+
+            context.Products.Add(product);
+            context.SaveChanges();
+
+        return RedirectToAction("Index", "Products");
+
+        }
+
+
+        public IActionResult Edit(int id)
+        {
+            var product = context.Products.Find(id);
+
+            if (product == null)
+            {
+                return RedirectToAction("Index", "Products");
+            }
+
+            var productDto = new ProductDto()
+            {
+                Name = product.Name,
+                Brand = product.Brand,
+                Category = product.Category,
+                Price = product.Price,
+                Stock = product.Stock,
+                Description = product.Description
+            };
+
+            ViewData["ProductId"] = product.Id;
+            ViewData["ImageFileName"] = product.ImageFileName;
+            ViewData["CreatedAt"] = product.CreatedAt.ToString("MM/dd/yyyy");
+
+            return View(productDto);
         }
     }
 }
