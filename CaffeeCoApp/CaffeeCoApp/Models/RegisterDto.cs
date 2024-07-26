@@ -18,7 +18,7 @@ namespace CaffeeCoApp.Models
             RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{10,}$", ErrorMessage = "The Password must be at least 10 characters long, have capital and non-capital letters, and contain non-alphanumeric characters."),
             MaxLength(20, ErrorMessage ="The password should not exceed 20 characters.")]
         public string Password { get; set; } = "";
-        [Compare("Password", ErrorMessage = "Passwords do not match")]
+        [Required, Compare("Password", ErrorMessage = "Passwords do not match")]
         public string ConfirmPassword { get; set; } = "";
 
     }

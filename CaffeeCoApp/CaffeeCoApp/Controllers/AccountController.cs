@@ -160,6 +160,35 @@ namespace CaffeeCoApp.Controllers
             return View(profileDto);
         }
 
+        [Authorize]
+        public IActionResult ChangePassword() 
+        {
+            return View();
+        }
+
+        [Authorize, HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto changePasswordDto)
+        {
+            if(!ModelState.IsValid) return View();
+
+            var appUser = await userManager.GetUserAsync(User);
+            if (appUser == null) return RedirectToAction("Index", "Home");
+
+            var result = await userManager.ChangePasswordAsync(appUser, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
+            if (result.Succeeded) 
+            { 
+                ViewBag.SuccessMsg = "Password changed successfully!";
+            }
+            else
+            {
+                ViewBag.ErrorMsg = "Failed to change password!" + result.Errors.First().Description;
+            }
+
+            return View();
+        }
+
+
+        [Authorize]
         public IActionResult AccessDenied()
         {
             return RedirectToAction("Index", "Home");
