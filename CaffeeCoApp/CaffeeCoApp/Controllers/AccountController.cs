@@ -245,6 +245,16 @@ namespace CaffeeCoApp.Controllers
             return View();
         }
 
+        public IActionResult ResetPassword(string? token)
+        {
+            if (signInManager.IsSignedIn(User) || token == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            return View();
+        }
+
+
         [Authorize]
         public IActionResult AccessDenied()
         {
