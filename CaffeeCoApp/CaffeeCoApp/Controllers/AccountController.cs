@@ -1,7 +1,9 @@
 ﻿using CaffeeCoApp.Models;
+using CaffeeCoApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace CaffeeCoApp.Controllers
 {
@@ -9,12 +11,14 @@ namespace CaffeeCoApp.Controllers
     {
         private readonly UserManager<AppUser> userManager;
         private readonly SignInManager<AppUser> signInManager;
+        private readonly IConfiguration configuration;
 
         public AccountController(UserManager<AppUser> userManager,
-            SignInManager<AppUser> signInManager)
+            SignInManager<AppUser> signInManager, IConfiguration configuration)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+            this.configuration = configuration;
         }
         public IActionResult Register()
         {
@@ -187,6 +191,59 @@ namespace CaffeeCoApp.Controllers
             return View();
         }
 
+        public IActionResult ForgotPassword()
+        {
+            if (signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword([Required, EmailAddress] string email)
+        {
+            if (signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            ViewBag.Email = email;
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.EmailError = ModelState["email"]?.Errors.First().ErrorMessage ?? "Invalid Email Address";
+                return View();
+            }
+            // Check if the email exists in the database
+            var user = await userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                ViewBag.ErrorMsg = "Account associated with this email does not exist!";
+            } else
+            {
+                var token = await userManager.GeneratePasswordResetTokenAsync(user);
+                string resetUrl = Url.ActionLink("ResetPassword", "Account", new { token }) ?? "URL Error";
+
+                // Console.WriteLine("PW reset link: " + resetUrl);
+
+                string sendername = configuration["EmailSettings:SenderName"] ?? "";
+                string senderemail = configuration["EmailSettings:SenderEmail"] ?? "";
+                string username = user.FirstName + " " + user.LastName;
+                string subject = "CaffeeCo Account Password Reset";
+                string message = "Dear " + username + ",\n\n" +
+                    "Please click the link below to reset your password:\n" +
+                    resetUrl + "\n\n" +
+                    "If you did not request a password reset, please ignore this email.\n\n" +
+                    "Best Regards,\nCaffeeCo Team";
+
+                EmailService.SendEmail(sendername, senderemail, email, username, message, subject);
+
+                ViewBag.SuccessMsg = "Password reset link sent to your email!";
+            }
+
+            return View();
+        }
 
         [Authorize]
         public IActionResult AccessDenied()
