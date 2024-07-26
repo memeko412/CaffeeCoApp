@@ -1,9 +1,11 @@
 ﻿using CaffeeCoApp.Models;
 using CaffeeCoApp.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CaffeeCoApp.Controllers
 {
+    [Authorize(Roles = "admin")]
     [Route("/Admin/[controller]/{action=Index}/{id?}")]
     public class ProductsController : Controller
     {

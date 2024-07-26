@@ -1,4 +1,5 @@
 ﻿using CaffeeCoApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -101,6 +102,67 @@ namespace CaffeeCoApp.Controllers
             }
             
             return View(loginDto);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Profile()
+        {
+            var appUser = await userManager.GetUserAsync(User);
+            var profileDto = new ProfileDto()
+            {
+                FirstName = appUser!.FirstName,
+                LastName = appUser!.LastName,
+                Email = appUser!.Email ?? "",
+                PhoneNumber = appUser!.PhoneNumber,
+                Address = appUser!.Address,
+            };
+
+            return View(profileDto);
+        }
+
+        [Authorize, HttpPost]
+        public async Task<IActionResult> Profile(ProfileDto profileDto) 
+        {
+            if (!ModelState.IsValid) {
+                ViewBag.ErrorMsg = "Please fill all required fields with valid inputs!";
+                return View(profileDto);
+            } 
+
+            var appUser = await userManager.GetUserAsync(User);
+            if (appUser == null) return RedirectToAction("Index","Home");
+
+            // Check if the email already exists in the database
+            var existingUser = await userManager.FindByEmailAsync(profileDto.Email);
+            if (existingUser != null && existingUser.Id != appUser.Id)
+            {
+                ViewBag.ErrorMsg = "Email already exists!";
+                return View(profileDto);
+            }
+
+            appUser.FirstName = profileDto.FirstName;
+            appUser.LastName = profileDto.LastName; 
+            appUser.PhoneNumber = profileDto.PhoneNumber;
+            appUser.Address = profileDto.Address;
+            appUser.Email = profileDto.Email;
+            appUser.UserName = profileDto.Email;
+
+            var result = await userManager.UpdateAsync(appUser);
+
+            if (!result.Succeeded) 
+            { 
+                ViewBag.ErrorMsg = "Failed to update profile!" + result.Errors.First().Description;
+            }
+            else
+            {
+                ViewBag.SuccessMsg = "Profile updated successfully!";
+            }
+
+            return View(profileDto);
+        }
+
+        public IActionResult AccessDenied()
+        {
+            return RedirectToAction("Index", "Home");
         }
 
     }
