@@ -19,5 +19,42 @@ namespace CaffeeCoApp.Controllers
         {
             return View();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterDto registerDto)
+        {
+            if (!ModelState.IsValid) 
+            { 
+                return View(registerDto); 
+            }
+
+            var user = new AppUser()
+            {
+                FirstName = registerDto.FirstName,
+                LastName = registerDto.LastName,
+                UserName = registerDto.Email,
+                Email = registerDto.Email,
+                PhoneNumber = registerDto.PhoneNumber,
+                Address = registerDto.Address,
+                CreatedAt = DateTime.Now,
+            };
+
+            var result = await userManager.CreateAsync(user, registerDto.Password);
+
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, "client");
+
+                await signInManager.SignInAsync(user, isPersistent: false);
+
+                return RedirectToAction("Index", "Home");
+            }
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+
+            return View(registerDto);
+        }
     }
 }

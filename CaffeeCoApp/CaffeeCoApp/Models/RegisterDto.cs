@@ -13,7 +13,7 @@ namespace CaffeeCoApp.Models
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string? PhoneNumber { get; set; }
         [MaxLength(200)]
-        public string? Address { get; set; }
+        public string? Address { get; set; } = "";
         [Required,
             RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{10,}$", ErrorMessage = "The Password must be at least 10 characters long, have capital and non-capital letters, and contain non-alphanumeric characters."),
             MaxLength(20, ErrorMessage ="The password should not exceed 20 characters.")]
