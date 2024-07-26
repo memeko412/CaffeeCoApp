@@ -254,6 +254,40 @@ namespace CaffeeCoApp.Controllers
             return View();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(string? token, PasswordResetDto passwordResetDto)
+        {
+            if (signInManager.IsSignedIn(User) || token == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            
+            if(!ModelState.IsValid)
+            {
+                return View(passwordResetDto);
+            }
+
+            var user = await userManager.FindByEmailAsync(passwordResetDto.Email);
+            if (user == null)
+            {
+                ViewBag.ErrorMsg = "Account associated with this email does not exist!";
+                return View(passwordResetDto);
+            }
+
+            var result = await userManager.ResetPasswordAsync(user, token, passwordResetDto.NewPassword);
+
+            if (result.Succeeded)
+            {
+                ViewBag.SuccessMsg = "Password reset successful!";
+            }
+            else
+            {
+                ViewBag.ErrorMsg = "Failed to reset password!" + result.Errors.First().Description;
+            }
+
+            return View(passwordResetDto);
+        }
+
 
         [Authorize]
         public IActionResult AccessDenied()
