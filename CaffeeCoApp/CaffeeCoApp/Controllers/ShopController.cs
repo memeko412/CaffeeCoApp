@@ -76,5 +76,15 @@ namespace CaffeeCoApp.Controllers
 
             return View(shopSearchmodel);
         }
+
+        public IActionResult Details(int id)
+        {
+            var product = context.Products.Find(id);
+            if (product == null)
+            {
+                return RedirectToAction("Index", "Shop");
+            }
+            return View(product);
+        }
     }
 }
