@@ -88,10 +88,49 @@ namespace CaffeeCoApp.Controllers
 
             var userRoles = await userManager.GetRolesAsync(appUser);
             
-            await userManager.RemoveFromRolesAsync(appUser, userRoles);
-            await userManager.AddToRoleAsync(appUser, newRole);
-            TempData["Success"] = "Role updated successfully";
+            var removeRoleResult = await userManager.RemoveFromRolesAsync(appUser, userRoles);
+            var changeRoleResult = await userManager.AddToRoleAsync(appUser, newRole);
+            if (removeRoleResult.Succeeded && changeRoleResult.Succeeded)
+            {
+                TempData["Success"] = "Role updated successfully";
+                return RedirectToAction("Details", "Users", new { id });
+            }
+
+            TempData["Error"] = "Something went wrong while update role for this account: " + removeRoleResult.Errors.First().Description + "/n" + changeRoleResult.Errors.First().Description;
             return RedirectToAction("Details", "Users", new { id });
+        }
+
+        public async Task<IActionResult> DeleteAccount(string? id)
+        {
+            if (id == null)
+            {
+                TempData["Error"] = "Invalid parameters";
+                return RedirectToAction("Index", "Users");
+            }
+
+            var appUser = userManager.FindByIdAsync(id).Result;
+            if (appUser == null)
+            {
+                TempData["Error"] = "User not found";
+                return RedirectToAction("Index", "Users");
+            }
+
+            var currentUser = await userManager.GetUserAsync(User);
+            if (currentUser!.Id == appUser.Id)
+            {
+                TempData["Error"] = "Cannot delete your own account!";
+                return RedirectToAction("Details", "Users", new { id });
+            }
+
+            var result = await userManager.DeleteAsync(appUser);
+            if (result.Succeeded)
+            {
+                TempData["Success"] = "Account deleted successfully";
+                return RedirectToAction("Index", "Users");
+            }
+            TempData["Error"] = "Something went wrong while deleting this account: " + result.Errors.First().Description;
+            return RedirectToAction("Details", "Users", new { id });
+
         }
 
     }
