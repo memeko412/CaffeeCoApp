@@ -4,9 +4,9 @@ namespace CaffeeCoApp.Models
 {
     public class RegisterDto
     {
-        [Required(ErrorMessage = "First Name is required"), MaxLength(100)]
+        [Required(ErrorMessage = "First Name is required"), MaxLength(100), RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "First Name can only contain letters")]
         public string FirstName { get; set; } = "";
-        [Required(ErrorMessage = "Last Name is required"), MaxLength(100)]
+        [Required(ErrorMessage = "Last Name is required"), MaxLength(100), RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Last Name can only contain letters")]
         public string LastName { get; set; } = "";
         [Required(ErrorMessage = "Email is required"), EmailAddress, MaxLength(100)]
         public string Email { get; set; } = "";
@@ -16,7 +16,7 @@ namespace CaffeeCoApp.Models
         public string? Address { get; set; } = "";
         [Required,
             RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{10,}$", ErrorMessage = "The Password must be at least 10 characters long, have capital and non-capital letters, and contain non-alphanumeric characters."),
-            MaxLength(20, ErrorMessage ="The password should not exceed 20 characters.")]
+            MaxLength(20, ErrorMessage = "The password should not exceed 20 characters.")]
         public string Password { get; set; } = "";
         [Required, Compare("Password", ErrorMessage = "Passwords do not match")]
         public string ConfirmPassword { get; set; } = "";
