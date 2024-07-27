@@ -1,0 +1,130 @@
+﻿@model AppUser
+@{
+}
+
+<div class="row">
+    <div class="col-md-8 mx-auto rounded border p-4">
+        <h2 class="mb-3">User Details</h2>
+        <hr />
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>@TempData["Error"]</strong> Please try again.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>@TempData["Success"]</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+
+        @if (ViewBag.ErrorMsg != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>@ViewBag.ErrorMsg</strong> Please try again.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (ViewBag.SuccessMsg != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>@ViewBag.SuccessMsg</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+
+        <div class="row mb-2">
+            <div class="col-sm-4">First Name</div>
+            <div class="col-sm-8">@Model.FirstName</div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-sm-4">Last Name</div>
+            <div class="col-sm-8">@Model.LastName</div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-sm-4">Email</div>
+            <div class="col-sm-8">@Model.Email</div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-sm-4">Phone</div>
+            <div class="col-sm-8">@Model.PhoneNumber</div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-sm-4">Address</div>
+            <div class="col-sm-8">@Model.Address</div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-sm-4">Account Type</div>
+            <div class="col-sm-8">
+                @{
+                    string roleBadge = "bg-warning text-dark";
+                    var rolesString = String.Join(", ", ViewBag.Roles);
+                    if (ViewBag.Roles.Contains("admin"))
+                    {
+                        roleBadge = "bg-danger";
+                    }
+                    else if (ViewBag.Roles.Contains("staff"))
+                    {
+                        roleBadge = "badge bg-info text-dark";
+                    }
+                    else if (ViewBag.Roles.Contains("client"))
+                    {
+                        roleBadge = "bg-warning text-dark";
+                    }
+
+                    <span class="badge @roleBadge">@rolesString</span>
+                    <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#editRoleModal">
+                        Edit Role
+                    </button>
+
+                }
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-sm-4">Created At</div>
+            <div class="col-sm-8">@Model.CreatedAt.ToString("MM/dd/yyyy")</div>
+        </div>
+
+        <hr />
+
+        <div>
+            <a class="btn btn-primary" asp-controller="Users" asp-action="Index">Back</a>
+            <button type="button" class="btn btn-danger">Delete User</button>
+        </div>
+
+
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="editRoleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Change User Role</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="get" asp-controller="Users" asp-action="EditRole">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" value="@Model.Id" name="id" />
+                    <label>Select User Role</label>
+                    <select class="form-select" name="newRole" asp-items="@ViewBag.RoleList">
+                    </select>
+
+                    <button type="submit" class="btn btn-primary">Confirm</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

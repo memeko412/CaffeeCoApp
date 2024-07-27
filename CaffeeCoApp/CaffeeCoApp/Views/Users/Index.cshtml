@@ -1,0 +1,69 @@
+﻿@model List<AppUser>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<AppUser> UserManager
+
+@{
+}
+
+<h2 class="text-center mb-5">List of Products</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Created At</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@(user.FirstName + " " + user.LastName)</td>
+                <td>@user.Email</td>
+                <td>
+                    @{
+                        var roles = await UserManager.GetRolesAsync(user);
+                        var rolesString = String.Join(", ", roles);
+
+                        string roleBadge = "bg-warning text-dark";
+                        if (roles.Contains("admin"))
+                        {
+                            roleBadge = "bg-danger";
+                        }
+                        else if (roles.Contains("staff"))
+                        {
+                            roleBadge = "bg-info text-dark";
+                        } else if (roles.Contains("client"))
+                        {
+                            roleBadge = "bg-warning text-dark";
+                        }
+
+                        <span class="badge @roleBadge">@rolesString</span>
+                    }
+                </td>
+                <td>@user.CreatedAt.ToString("MM/dd/yyyy")</td>
+                <td>
+                    <a class="btn btn-primary btn-sm" asp-controller="Users" asp-action="Details" asp-route-id="@user.Id">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+
+</table>
+
+<nav>
+    <ul class="pagination">
+        @for (int i = 1; i <= ViewBag.PageTotal; i++)
+        {
+            string active = "";
+            if (i == ViewBag.PageIndex) active = "active";
+            <li class="page-item @active">
+                <a class="page-link" asp-route-pageIndex="@i">@i</a>
+            </li>
+        }
+    </ul>
+</nav>
