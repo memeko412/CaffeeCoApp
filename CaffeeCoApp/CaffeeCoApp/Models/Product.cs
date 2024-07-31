@@ -21,5 +21,9 @@ namespace CaffeeCoApp.Models
         [MaxLength(100)]
         public string ImageFileName { get; set; } = "";
         public DateTime CreatedAt { get; set; }
+        [Range(0, 5)]
+        public double Rating { get; set; } = 0;
+        [Range(0, int.MaxValue)]
+        public int RatingCount { get; set; } = 0;
     }
 }

@@ -10,6 +10,9 @@
 
     <div class="col-md-8">
         <h3 class="mb-3">@Model.Name</h3>
+        <h5 class="mb-3">
+            Rating: <i class="bi bi-star-fill"></i>@(Model.Rating)(@(Model.RatingCount))
+        </h5>
         <h3 class="mb-3">$@Model.Price</h3>
         <button type="button" class="btn btn-warning btn-sm">
             Add to Cart<i class="bi bi-cart4"></i>
