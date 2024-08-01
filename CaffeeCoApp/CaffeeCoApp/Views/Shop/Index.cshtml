@@ -45,7 +45,7 @@
                 <p>Brand: @product.Brand</p>
                 <p>Category: @product.Category</p>
                 <h4 class="mb-3">$@(product.Price)</h4>
-                <p>Rating: <i class="bi bi-star-fill"></i>@(product.Rating)(@(product.RatingCount))</p>
+                <p>Rating: <i class="bi bi-star-fill text-warning"></i>@(product.Rating)(@(product.RatingCount))</p>
                 <a class="btn btn-primary btn-sm mb-2" asp-controller="Shop" asp-action="Details"
                    asp-route-id="@product.Id" role="button">Details</a>
                 <button type="button" class="btn btn-warning btn-sm mb-2">
