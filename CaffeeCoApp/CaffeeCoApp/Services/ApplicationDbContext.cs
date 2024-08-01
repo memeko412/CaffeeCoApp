@@ -1,6 +1,7 @@
 ﻿using CaffeeCoApp.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CaffeeCoApp.Services
 {
@@ -12,5 +13,7 @@ namespace CaffeeCoApp.Services
         }
 
         public DbSet<Product> Products { get; set; }
+        public DbSet<Store> Stores { get; set; }
+        public DbSet<Order> Orders { get; set; }
     }
 }
