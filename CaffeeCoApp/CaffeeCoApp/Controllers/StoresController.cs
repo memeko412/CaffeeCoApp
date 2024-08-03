@@ -25,5 +25,17 @@ namespace CaffeeCoApp.Controllers
         {
             return View();
         }
+
+        [HttpPost]
+        public IActionResult Create(Store store)
+        {
+            if (!ModelState.IsValid) return View(store);
+
+            context.Stores.Add(store);
+            context.SaveChanges();
+
+
+            return RedirectToAction("Index");
+        }
     }
 }
