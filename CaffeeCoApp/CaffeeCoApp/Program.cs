@@ -26,6 +26,13 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(
 
 Configuration.Default.ApiKey.Add("api-key", builder.Configuration["EmailSettings:ApiKey"]);
 
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Auth:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Auth:Google:ClientSecret"];
+    });
+
 
 var app = builder.Build();
 

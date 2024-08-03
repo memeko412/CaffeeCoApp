@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace CaffeeCoApp.Controllers
 {
@@ -95,6 +96,7 @@ namespace CaffeeCoApp.Controllers
                 return RedirectToAction("Index", "Home");
             }
             if (!ModelState.IsValid) return View(loginDto);
+
             var result = await signInManager.PasswordSignInAsync(loginDto.Email, loginDto.Password, loginDto.RememberMe, false);
             if (result.Succeeded)
             {
@@ -102,10 +104,75 @@ namespace CaffeeCoApp.Controllers
             }
             else
             {
-                ViewBag.ErrorMsg = "Login Failed! ";
+                ViewBag.ErrorMsg = "Login Failed!";
             }
-            
+
             return View(loginDto);
+        }
+
+        [HttpGet]
+        public IActionResult ExternalLogin(string provider)
+        {
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Account");
+            var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return Challenge(properties, provider);
+        }
+
+        public async Task<IActionResult> ExternalLoginCallback(string remoteError = null)
+        {
+            if (remoteError != null)
+            {
+                ViewBag.ErrorMessage = $"Error from external provider: {remoteError}";
+                return View("Login");
+            }
+
+            var info = await signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            // Sign in the user with this external login provider if the user already has a login.
+            var signInResult = await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+            if (signInResult.Succeeded)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            // If the user does not have an account, then create one.
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            if (email != null)
+            {
+                var user = await userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    user = new AppUser { UserName = email, Email = email, CreatedAt = DateTime.Now };
+                    var result = await userManager.CreateAsync(user);
+                    if (result.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(user, "client");
+                        result = await userManager.AddLoginAsync(user, info);
+                        if (result.Succeeded)
+                        {
+                            await signInManager.SignInAsync(user, isPersistent: false);
+                            return RedirectToAction("Index", "Home");
+                        }
+                    }
+                }
+                else
+                {
+                    var result = await userManager.AddLoginAsync(user, info);
+                    if (result.Succeeded)
+                    {
+                        await signInManager.SignInAsync(user, isPersistent: false);
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
+            }
+
+            // If we get here, something failed.
+            ViewBag.ErrorMessage = "Error loading external login information.";
+            return View("Login");
         }
 
         [Authorize]
