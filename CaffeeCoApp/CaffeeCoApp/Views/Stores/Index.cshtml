@@ -1,0 +1,49 @@
+﻿@model List<Store>
+
+@{
+}
+
+<h2 class="text-center mb-5">List of Stores</h2>
+<div class="row mb-5">
+    <div class="col">
+        <a class="btn btn-primary" asp-controller="Stores" asp-action="Create">New Store</a>
+    </div>
+
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var store in Model)
+        {
+            <tr>
+                <td>@store.Id</td>
+                <td>@store.Name</td>
+                <td>
+                    <a class="btn btn-primary btn-sm" asp-controller="Stores" asp-action="Details" asp-route-id="@store.Id">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+
+</table>
+
+<nav>
+    <ul class="pagination">
+        @for (int i = 1; i <= ViewBag.PageTotal; i++)
+        {
+            string active = "";
+            if (i == ViewBag.PageIndex) active = "active";
+            <li class="page-item @active">
+                <a class="page-link" asp-route-pageIndex="@i">@i</a>
+            </li>
+        }
+    </ul>
+</nav>

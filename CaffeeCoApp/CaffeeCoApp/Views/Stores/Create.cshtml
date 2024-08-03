@@ -1,0 +1,90 @@
+﻿@model Store
+@{
+
+}
+
+<div class="row">
+    <div class="col-md-8 mx-auto rounded border p-3">
+        <h2 class="text-center mb-5"> New Store</h2>
+        <form method="post">
+            <div class="row mb-3">
+                <label class="col-sm-4 col-form-label">Name</label>
+                <div class="col-sm-8">
+                    <input class="form-control" asp-for="Name">
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label class="col-sm-4 col-form-label">Address</label>
+                <div class="col-sm-8">
+                    <input class="form-control" asp-for="Address">
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label class="col-sm-4 col-form-label">Daily Pickup Limit</label>
+                <div class="col-sm-8">
+                    <input class="form-control" asp-for="DailyPickUpLimit">
+                    <span asp-validation-for="DailyPickUpLimit" class="text-danger"></span>
+                </div>
+            </div>
+            <input asp-for="Longitude" type="hidden" />
+            <input asp-for="Latitude" type="hidden" />
+            <div id="map" style="height: 400px; width: 100%;"></div>
+            <div class="row">
+                <div class="offset-sm-4 col-sm-4 d-grid">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+                <div class="col-sm-4 d-grid">
+                    <a class="btn btn-outline-primary" asp-controller="Stores" asp-action="Index" role="button">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLRLOFgDz1enNnXY7zlPo8dFrMq3KPG1A&libraries=places&callback=initMap" async defer></script>
+    <script>
+        function initMap() {
+            const mapElement = document.getElementById('map');
+            let map, marker;
+
+            function initializeMap(lat, lng) {
+                const location = { lat: lat, lng: lng };
+                map = new google.maps.Map(mapElement, {
+                    center: location,
+                    zoom: 15
+                });
+                marker = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const addressInput = document.querySelector('[name="Address"]');
+                const longitudeInput = document.querySelector('[name="Longitude"]');
+                const latitudeInput = document.querySelector('[name="Latitude"]');
+
+                addressInput.addEventListener('blur', function () {
+                    const geocoder = new google.maps.Geocoder();
+                    geocoder.geocode({ 'address': addressInput.value }, function (results, status) {
+                        if (status === 'OK') {
+                            const location = results[0].geometry.location;
+                            longitudeInput.value = location.lng();
+                            latitudeInput.value = location.lat();
+                            initializeMap(location.lat(), location.lng());
+                        } 
+                    });
+                });
+
+                // Initialize map with default location
+                initializeMap(-37.8136, 144.9631); // Default to Melbourne city center
+            });
+        }
+    </script>
+}
