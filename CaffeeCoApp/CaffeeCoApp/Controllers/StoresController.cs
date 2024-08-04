@@ -9,15 +9,21 @@ namespace CaffeeCoApp.Controllers
     public class StoresController : Controller
     {
         private readonly ApplicationDbContext context;
+        private readonly int pagesize = 10;
 
         public StoresController(ApplicationDbContext context)
         {
             this.context = context;
         }
-        public IActionResult Index()
+        public IActionResult Index(int? pageIndex)
         {
             IQueryable<Store> query = context.Stores;
+            if (pageIndex == null || pageIndex < 1) pageIndex = 1;
+            int pageTotal = (int)Math.Ceiling(query.Count() / (double)pagesize);
+            query = query.Skip((pageIndex.Value - 1) * pagesize).Take(pagesize);
             var stores = query.ToList();
+            ViewBag.PageIndex = pageIndex;
+            ViewBag.PageTotal = pageTotal;
             return View(stores);
         }
 
