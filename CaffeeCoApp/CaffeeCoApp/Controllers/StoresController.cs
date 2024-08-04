@@ -15,15 +15,21 @@ namespace CaffeeCoApp.Controllers
         {
             this.context = context;
         }
-        public IActionResult Index(int? pageIndex)
+        public IActionResult Index(int? pageIndex, string? search, string? column, string? orderBy)
         {
             IQueryable<Store> query = context.Stores;
+            // search stores
+            if (search != null) query = query.Where(store => store.Name.ToLower().Contains(search.ToLower()));
+
             if (pageIndex == null || pageIndex < 1) pageIndex = 1;
             int pageTotal = (int)Math.Ceiling(query.Count() / (double)pagesize);
             query = query.Skip((pageIndex.Value - 1) * pagesize).Take(pagesize);
             var stores = query.ToList();
             ViewBag.PageIndex = pageIndex;
             ViewBag.PageTotal = pageTotal;
+            ViewData["Column"] = column;
+            ViewData["OrderBy"] = orderBy;
+            ViewData["Search"] = search ?? "";
             return View(stores);
         }
 

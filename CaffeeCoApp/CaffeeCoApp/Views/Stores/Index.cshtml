@@ -1,6 +1,9 @@
 ﻿@model List<Store>
 
 @{
+    string search = (string)ViewData["Search"]!;
+    string column = (string)ViewData["Column"]!;
+    string orderBy = (string)ViewData["OrderBy"]!;
 }
 @if (TempData["Error"] != null)
 {
@@ -21,7 +24,12 @@
     <div class="col">
         <a class="btn btn-primary" asp-controller="Stores" asp-action="Create">New Store</a>
     </div>
-
+    <div class="col">
+        <form class="d-flex" role="search">
+            <input class="form-control me-2" type="search" name="search" value="@search" placeholder="Search Store" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+    </div>
 </div>
 
 <table class="table">

@@ -1,8 +1,25 @@
 ﻿@model List<AppUser>
+@using Microsoft.AspNetCore.Html
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<AppUser> UserManager
 
 @{
+    int pageIndex = (int)ViewData["PageIndex"]!;
+    int totalPages = (int)ViewData["TotalPages"]!;
+    string search = (string)ViewData["Search"]!;
+    string column = (string)ViewData["Column"]!;
+    string orderBy = (string)ViewData["OrderBy"]!;
+    string role = (string)ViewData["Role"]!;
+
+    HtmlString getOrdArrow(string tableColumn)
+    {
+        if (tableColumn == column)
+        {
+            if (orderBy == "asc") return new HtmlString("<i class='bi bi-arrow-up'></i>");
+            else return new HtmlString("<i class='bi bi-arrow-down'></i>");
+        }
+        return new HtmlString("");
+    }
 }
 @if (TempData["Error"] != null)
 {
@@ -20,13 +37,43 @@
 }
 <h2 class="text-center mb-5">List of Users</h2>
 
+<form class="row g-3 mb-3">
+    <div class="col-lg-2 col-md-4">
+        <select class="form-select" name="role" asp-for="@role" onchange="this.form.submit()">
+            <option value="">All Roles</option>
+            <option value="admin">Admin</option>
+            <option value="staff">Staff</option>
+            <option value="client">Client</option>
+        </select>
+    </div>
+    <div class="col-lg-6 col-md-12 d-flex">
+        <input class="form-control me-2" type="search" name="search" value="@search" placeholder="Search by user's name" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+    </div>
+
+</form>
+ 
+
+<script>
+    function sortTable(column) {
+        let orderBy = "desc";
+        let currCol = "@column";
+        let currOrd = "@orderBy";
+        if (column === currCol) {
+            if (currOrd == "asc") orderBy = "desc";
+            else orderBy = "asc";
+        }
+        window.location.href = "?search=@(search)&column=" + column + "&orderBy=" + orderBy;
+    }
+</script>
+
 <table class="table">
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Email</th>
+            <th style="cursor: pointer;" onclick="sortTable('Name')">Name @getOrdArrow("Name")</th>
+            <th style="cursor: pointer;" onclick="sortTable('Email')">Email @getOrdArrow("Email")</th>
             <th>Role</th>
-            <th>Created At</th>
+            <th style="cursor: pointer;" onclick="sortTable('CreatedAt')">Created At @getOrdArrow("CreatedAt")</th>
             <th>Action</th>
         </tr>
     </thead>
@@ -70,12 +117,13 @@
 
 <nav>
     <ul class="pagination">
-        @for (int i = 1; i <= ViewBag.PageTotal; i++)
+        @for (int i = 1; i <= totalPages; i++)
         {
             string active = "";
-            if (i == ViewBag.PageIndex) active = "active";
+            if (i == pageIndex) active = "active";
             <li class="page-item @active">
-                <a class="page-link" asp-route-pageIndex="@i">@i</a>
+                <a class="page-link" asp-route-pageIndex="@i"
+                   asp-route-search="@search" asp-route-column="@column" asp-route-orderBy="@orderBy">@i</a>
             </li>
         }
     </ul>
