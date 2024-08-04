@@ -49,11 +49,11 @@
 @section Scripts {
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLRLOFgDz1enNnXY7zlPo8dFrMq3KPG1A&libraries=places&callback=initMap" async defer></script>
     <script>
-        function initMap() {
+        async function initMap() {
             const mapElement = document.getElementById('map');
             let map, marker;
 
-            function initializeMap(lat, lng) {
+            async function initializeMap(lat, lng) {
                 const location = { lat: lat, lng: lng };
                 map = new google.maps.Map(mapElement, {
                     center: location,
@@ -78,11 +78,10 @@
                             longitudeInput.value = location.lng();
                             latitudeInput.value = location.lat();
                             initializeMap(location.lat(), location.lng());
-                        } 
+                        }
                     });
                 });
 
-                // Initialize map with default location
                 initializeMap(-37.8136, 144.9631); // Default to Melbourne city center
             });
         }

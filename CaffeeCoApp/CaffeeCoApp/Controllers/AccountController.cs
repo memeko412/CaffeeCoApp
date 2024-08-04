@@ -170,7 +170,6 @@ namespace CaffeeCoApp.Controllers
                 }
             }
 
-            // If we get here, something failed.
             ViewBag.ErrorMessage = "Error loading external login information.";
             return View("Login");
         }

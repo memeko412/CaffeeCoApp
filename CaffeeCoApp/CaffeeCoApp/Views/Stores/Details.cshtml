@@ -1,0 +1,110 @@
+﻿@model Store
+@{
+}
+
+<div class="row">
+    <div class="col-md-8 mx-auto rounded border p-4">
+        <h2 class="mb-3">Store Details</h2>
+        <hr />
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>@TempData["Error"]</strong> Please try again.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>@TempData["Success"]</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+
+        @if (ViewBag.ErrorMsg != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>@ViewBag.ErrorMsg</strong> Please try again.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (ViewBag.SuccessMsg != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>@ViewBag.SuccessMsg</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+
+        <div class="row mb-2">
+            <div class="col-sm-4">Store Name</div>
+            <div class="col-sm-8">@Model.Name</div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-sm-4">Address</div>
+            <div class="col-sm-8">@Model.Address</div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-sm-4">Daily Pickup Limit</div>
+            <div class="col-sm-8">@Model.DailyPickUpLimit</div>
+        </div>
+
+        <hr />
+        <div id="map" style="height: 400px;"></div>
+        <hr />
+        <div>
+            <a class="btn btn-primary" asp-controller="Stores" asp-action="Index">Back</a>
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteStoreModal">Delete Store</button>
+        </div>
+
+
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="deleteStoreModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Store?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>This change cannot be undone! Are you sure you want to delete this store? </p>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-danger" role="button" asp-controller="Stores" asp-action="Delete"
+                   asp-route-id="@Model.Id">Confirm</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLRLOFgDz1enNnXY7zlPo8dFrMq3KPG1A&libraries=places&callback=initMap" async defer></script>
+    <script>
+        async function initMap() {
+            const mapElement = document.getElementById('map');
+            let map, marker;
+
+            async function initializeMap(lat, lng) {
+                const location = { lat: lat, lng: lng };
+                map = new google.maps.Map(mapElement, {
+                    center: location,
+                    zoom: 15
+                });
+                marker = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+            }
+            initializeMap(@Model.Latitude, @Model.Longitude); 
+
+        }
+    </script>
+}

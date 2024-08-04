@@ -37,5 +37,28 @@ namespace CaffeeCoApp.Controllers
 
             return RedirectToAction("Index");
         }
+
+        public IActionResult Details(int? id)
+        {
+            var store = context.Stores.Find(id);
+            return View(store);
+        }
+
+        public IActionResult Delete(int? id) 
+        {
+            if (id == null) {
+                TempData["Error"] = "Invalid parameters";
+                return RedirectToAction("Index", "Stores");
+            } 
+            var store = context.Stores.Find(id);
+            if (store == null) {
+                TempData["Error"] = "Store not found";
+                return RedirectToAction("Index","Stores");
+            }
+            context.Stores.Remove(store);
+            context.SaveChanges();
+            TempData["Success"] = "Store deleted successfully";
+            return RedirectToAction("Index", "Stores");
+        }
     }
 }
