@@ -11,7 +11,7 @@ namespace CaffeeCoApp.Models
         [Required]
         [DataType(DataType.Date)]
         public DateTime DeliveryDate { get; set; }
-        public Store? Store { get; set; }
+        public int? StoreId { get; set; }
 
     }
 }

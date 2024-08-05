@@ -1,0 +1,48 @@
+﻿
+@{
+}
+
+<div class="mx-auto rounded border p-4" style="width: 420px">
+    <h2 class="text-center mb-3"> Order Details</h2>
+    <hr />
+
+    @if (ViewBag.SuccessMessage != null)
+    {
+        <div class="alert alert-success" role="alert">
+            <strong>@ViewBag.SuccessMessage</strong>
+        </div>
+        <a class="btn btn-outline-primary" asp-controller="ClientOrders" asp-action="Index">Back</a>
+
+    } 
+    else
+    {    
+    <div class="row mb-3">
+        <div class="col-5">Delivery Address</div>
+        <div class="col-7">@ViewBag.DeliveryAddress</div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-5">Is Pick-up Order</div>
+        <div class="col-7">@ViewBag.IsPickUp</div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-5">Delivery Date</div>
+        <div class="col-7">@ViewBag.DeliveryDate.ToString("MM/dd/yyyy")</div>
+    </div>
+
+    <form method="post">
+        <div class="row">
+            <div class="col-sm-6 d-grid">
+                <button type="submit" class="btn btn-primary">Confirm</button>
+            </div>
+            <div class="col-sm-6 d-grid">
+                <a class="btn btn-outline-primary" asp-controller="Cart" asp-action="Index">Back</a>
+            </div>
+        </div>
+    </form>
+        }
+
+
+
+</div>

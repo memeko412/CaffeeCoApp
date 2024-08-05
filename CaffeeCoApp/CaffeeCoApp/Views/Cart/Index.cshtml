@@ -99,7 +99,7 @@
                     <div id="pickupFields" style="display:@(Model.IsPickUp ? "block" : "none")">
                         <div class="mb-3">
                             <label for="store" class="form-label">Store</label>
-                            <select class="form-select" id="store" asp-for="Store" onchange="showStoreOnMap()">
+                            <select class="form-select" id="store" asp-for="StoreId" onchange="showStoreOnMap()">
                                 <option value="">Select a store</option>
                                 @foreach (var store in ViewBag.Stores)
                                 {
