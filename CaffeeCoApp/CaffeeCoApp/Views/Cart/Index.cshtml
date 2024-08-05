@@ -1,0 +1,202 @@
+﻿@model Order
+@{
+}
+
+<div class="row border rounded-3">
+    <div class="col-md-8 p-3">
+        <h4>Shopping Cart</h4>
+        <hr />
+
+        <table class="table align-middle">
+            <tbody>
+                @foreach (var item in ViewBag.CartItems)
+                {
+                    <tr>
+                        <td>
+                            <img src="/products/@item.Product.ImageFileName" width="100" class="rounded" alt="...">
+                        </td>
+                        <td>
+                            <h4>@item.Product.Name</h4>
+                            <p>
+                                Brand: @item.Product.Brand<br>
+                                Category: @item.Product.Category<br>
+                                Price: $@(item.Product.Price)
+                            </p>
+                        </td>
+                        <td style="white-space:nowrap">
+                            <button type="button" class="btn btn-outline-secondary btn-sm">-</button>
+                            <span class="border rounded-3 p-2 m-1">@item.Quantity</span>
+                            <button type="button" class="btn btn-outline-secondary btn-sm">+</button>
+                        </td>
+                        <td>$@(item.UnitPrice * item.Quantity)</td>
+                        <td>
+                            <i class="bi bi-trash-fill text-danger h4" style="cursor:pointer"></i>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+    <div class="col-md-4">
+        <div class="text-white rounded my-2 p-3" style="background-color:#08618d;">
+            <h4>Order Summary</h4>
+            <hr />
+
+            @using Microsoft.AspNetCore.Identity
+            @inject SignInManager<AppUser> SignInManager
+
+            @if (!SignInManager.IsSignedIn(User))
+            {
+                <div class="row">
+                    <div class="col">
+                        <p>Subtotal: </p>
+                    </div>
+                    <div class="col">
+                        <p class="text-end">$@(ViewBag.Subtotal)</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col d-grid">
+                        <a class="btn btn-light" asp-controller="Account" asp-action="Register">Register</a>
+                    </div>
+                    <div class="col d-grid">
+                        <a class="btn btn-outline-light" asp-controller="Account" asp-action="Login">Login</a>
+                    </div>
+                    <a href="~/Account/ExternalLogin?provider=Google">Login with Google</a>
+                </div>
+            }
+            else
+            {
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="IsPickUp" class="form-label">Choose Delivery Option</label>
+                        <select class="form-select" id="IsPickUp" asp-for="IsPickUp" onchange="showFields()">
+                            <option value="false">Delivery</option>
+                            <option value="true">Pick-up</option>
+                        </select>
+                    </div>
+
+                    <div id="deliveryFields" style="display:@(Model.IsPickUp ? "none" : "block")">
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="address" asp-for="ShippingAddress">
+                        </div>
+                    </div>
+
+                    <div id="pickupFields" style="display:@(Model.IsPickUp ? "block" : "none")">
+                        <div class="mb-3">
+                            <label for="store" class="form-label">Store</label>
+                            <select class="form-select" id="store" asp-for="Store" onchange="showStoreOnMap()">
+                                <option value="">Select a store</option>
+                                @foreach (var store in ViewBag.Stores)
+                                {
+                                    <option value="@store.Id" data-lat="@store.Latitude" data-lng="@store.Longitude">@store.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div id="map" style="height: 400px; width: 100%;"></div>
+                        <div class="mt-3">
+                            <p>Distance from your location: <span id="distance"></span></p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Checkout</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    function showFields() {
+        var isPickUp = document.getElementById("IsPickUp").value;
+        var deliveryFields = document.getElementById("deliveryFields");
+        var pickupFields = document.getElementById("pickupFields");
+
+        if (isPickUp === "false") {
+            deliveryFields.style.display = "block";
+            pickupFields.style.display = "none";
+        } else if (isPickUp === "true") {
+            deliveryFields.style.display = "none";
+            pickupFields.style.display = "block";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var userLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    selectClosestStore(userLocation);
+                });
+            }
+        }
+    }
+
+    function selectClosestStore(userLocation) {
+        var select = document.getElementById("store");
+        var options = select.options;
+        var closestDistance = Infinity;
+        var closestOption = null;
+
+        for (var i = 1; i < options.length; i++) {
+            var option = options[i];
+            var lat = parseFloat(option.getAttribute("data-lat"));
+            var lng = parseFloat(option.getAttribute("data-lng"));
+            var storeLocation = new google.maps.LatLng(lat, lng);
+            var distance = google.maps.geometry.spherical.computeDistanceBetween(userLocation, storeLocation);
+
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestOption = option;
+            }
+        }
+
+        if (closestOption) {
+            closestOption.selected = true;
+            showStoreOnMap();
+        }
+    }
+
+    function showStoreOnMap() {
+        var select = document.getElementById("store");
+        var option = select.options[select.selectedIndex];
+        var lat = option.getAttribute("data-lat");
+        var lng = option.getAttribute("data-lng");
+
+        if (lat && lng) {
+            var storeLocation = new google.maps.LatLng(lat, lng);
+            var map = new google.maps.Map(document.getElementById("map"), {
+                center: storeLocation,
+                zoom: 15
+            });
+            var marker = new google.maps.Marker({
+                position: storeLocation,
+                map: map
+            });
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var userLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    var distance = google.maps.geometry.spherical.computeDistanceBetween(userLocation, storeLocation) / 1000; // distance in kilometers
+                    document.getElementById("distance").textContent = distance.toFixed(2) + " km";
+                });
+            }
+        }
+    }
+
+    // Show fields on page load
+    showFields();
+
+    // Load Google Maps script
+    function loadGoogleMapsApi() {
+        var script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCLRLOFgDz1enNnXY7zlPo8dFrMq3KPG1A&libraries=geometry&callback=initMap`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+    }
+
+    function initMap() {
+        // Initialize the map when the script loads
+    }
+
+    window.onload = loadGoogleMapsApi;
+</script>

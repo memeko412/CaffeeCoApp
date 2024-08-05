@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using CaffeeCoApp.Models;
+using System.Text.Json;
 
 namespace CaffeeCoApp.Services
 {
@@ -38,5 +39,40 @@ namespace CaffeeCoApp.Services
             return cartSize;
         }
 
+        public static List<OrderItem> GetCartItems(HttpRequest request, HttpResponse response, ApplicationDbContext context)
+        {
+            var cartItems = new List<OrderItem>();
+            var cartDictionary = GetCartDictionary(request, response);
+            foreach (var pair in cartDictionary)
+            {
+                int productId = pair.Key;
+                int quantity = pair.Value;
+                var product = context.Products.Find(productId);
+                if (product == null) continue;
+                if (quantity > product.Stock) quantity = product.Stock;
+                var orderItem = new OrderItem
+                {
+                    Product = product,
+                    Quantity = quantity,
+                    UnitPrice = product.Price
+                };
+                cartItems.Add(orderItem);
+
+            }
+            return cartItems;
+        }
+
+        public static decimal GetSubTotal(List<OrderItem> cartItems)
+        {
+            decimal subtotal = 0;
+            foreach (var item in cartItems)
+            {
+                subtotal += item.Quantity * item.UnitPrice;
+            }
+
+            return subtotal;
+        }
     }
+
+
 }
