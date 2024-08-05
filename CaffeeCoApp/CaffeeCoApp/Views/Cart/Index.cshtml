@@ -1,12 +1,19 @@
-﻿@model Order
+﻿@model CheckoutDto
 @{
+    var currentDate = DateTime.Now.ToString("yyyy-MM-dd");
 }
 
 <div class="row border rounded-3">
     <div class="col-md-8 p-3">
         <h4>Shopping Cart</h4>
         <hr />
-
+        @if (ViewBag.ErrorMsg != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>@ViewBag.ErrorMsg</strong> Please try again.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
         <table class="table align-middle">
             <tbody>
                 @foreach (var item in ViewBag.CartItems)
@@ -81,7 +88,11 @@
                     <div id="deliveryFields" style="display:@(Model.IsPickUp ? "none" : "block")">
                         <div class="mb-3">
                             <label for="address" class="form-label">Address</label>
-                            <input type="text" class="form-control" id="address" asp-for="ShippingAddress">
+                            <input type="text" class="form-control" id="ShippingAddress" asp-for="ShippingAddress">
+                        </div>
+                        <div class="mb-3">
+                            <label for="SelectedDate" class="form-label">Delivery Date</label>
+                            <input type="date" class="form-control" id="SelectedDate" asp-for="DeliveryDate" value="@currentDate">
                         </div>
                     </div>
 
@@ -92,13 +103,18 @@
                                 <option value="">Select a store</option>
                                 @foreach (var store in ViewBag.Stores)
                                 {
-                                    <option value="@store.Id" data-lat="@store.Latitude" data-lng="@store.Longitude">@store.Name</option>
+                                    <option value="@store.Id" data-lat="@store.Latitude" data-lng="@store.Longitude" data-address="@store.Address">@store.Name</option>
                                 }
                             </select>
+                            <input asp-for="ShippingAddress" type="hidden" id="ShippingAddress" />
                         </div>
                         <div id="map" style="height: 400px; width: 100%;"></div>
                         <div class="mt-3">
                             <p>Distance from your location: <span id="distance"></span></p>
+                        </div>
+                        <div class="mb-3">
+                            <label for="SelectedDate" class="form-label">Pick-up Date</label>
+                            <input type="date" class="form-control" id="SelectedDate" asp-for="DeliveryDate" value="@currentDate">
                         </div>
                     </div>
 
@@ -126,7 +142,7 @@
                         </div>
                         <div class="col">
                             <p class="text-end">$@(ViewBag.Subtotal)</p>
-                        </div> 
+                        </div>
                     </div>
 
                     <div class="d-grid">
@@ -144,13 +160,16 @@
         var isPickUp = document.getElementById("IsPickUp").value;
         var deliveryFields = document.getElementById("deliveryFields");
         var pickupFields = document.getElementById("pickupFields");
+        var dateInput = document.getElementById("SelectedDate");
 
         if (isPickUp === "false") {
             deliveryFields.style.display = "block";
             pickupFields.style.display = "none";
+            disableInvalidDeliveryDates();
         } else if (isPickUp === "true") {
             deliveryFields.style.display = "none";
             pickupFields.style.display = "block";
+            disableInvalidPickupDates();
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (position) {
                     var userLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -158,6 +177,46 @@
                 });
             }
         }
+    }
+
+    function disableInvalidDeliveryDates() {
+        var dateInput = document.getElementById("SelectedDate");
+        var today = new Date().toISOString().split('T')[0];
+        dateInput.min = today;
+
+        dateInput.addEventListener('input', function () {
+            var date = new Date(dateInput.value);
+            var day = date.getUTCDay();
+            if (day === 6 || day === 0) {
+                alert("Deliveries are only available on weekdays.");
+                dateInput.value = '';
+            }
+        });
+    }
+
+    function disableInvalidPickupDates() {
+        var dateInput = document.getElementById("SelectedDate");
+        var today = new Date().toISOString().split('T')[0];
+        dateInput.min = today;
+
+        dateInput.addEventListener('input', function () {
+            var selectedDate = dateInput.value;
+            checkPickupLimit(selectedDate);
+        });
+    }
+
+    function checkPickupLimit(date) {
+        var storeId = document.getElementById("store").value;
+        if (!storeId) return;
+
+        fetch(`/Order/CheckPickupLimit?storeId=${storeId}&date=${date}`)
+            .then(response => response.json())
+            .then(data => {
+                if (!data.isAvailable) {
+                    alert("The selected store has reached its pickup limit for this day.");
+                    document.getElementById("SelectedDate").value = '';
+                }
+            });
     }
 
     function selectClosestStore(userLocation) {
@@ -190,6 +249,8 @@
         var option = select.options[select.selectedIndex];
         var lat = option.getAttribute("data-lat");
         var lng = option.getAttribute("data-lng");
+        var address = option.getAttribute("data-address");
+        document.getElementById("ShippingAddress").value = address;
 
         if (lat && lng) {
             var storeLocation = new google.maps.LatLng(lat, lng);

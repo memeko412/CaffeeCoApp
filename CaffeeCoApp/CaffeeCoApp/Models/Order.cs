@@ -12,7 +12,7 @@ namespace CaffeeCoApp.Models
         public bool IsPickUp { get; set; }
         public string ShippingAddress { get; set; } = "";
         public string ShippingStatus { get; set; } = "";
-        public DateOnly DeliveryDate { get; set; }
+        public DateTime DeliveryDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public Store? Store { get; set; }
     }
