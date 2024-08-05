@@ -40,13 +40,13 @@
                             </p>
                         </td>
                         <td style="white-space:nowrap">
-                            <button type="button" class="btn btn-outline-secondary btn-sm">-</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decrease(@item.Product.Id)">-</button>
                             <span class="border rounded-3 p-2 m-1">@item.Quantity</span>
-                            <button type="button" class="btn btn-outline-secondary btn-sm">+</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increase(@item.Product.Id)">+</button>
                         </td>
                         <td>$@(item.UnitPrice * item.Quantity)</td>
                         <td>
-                            <i class="bi bi-trash-fill text-danger h4" style="cursor:pointer"></i>
+                            <i class="bi bi-trash-fill text-danger h4" style="cursor:pointer" onclick="remove(@item.Product.Id)"></i>
                         </td>
                     </tr>
                 }
@@ -80,7 +80,7 @@
                     <div class="col d-grid">
                         <a class="btn btn-outline-light" asp-controller="Account" asp-action="Login">Login</a>
                     </div>
-                    <a href="~/Account/ExternalLogin?provider=Google">Login with Google</a>
+                    <a href="~/Account/ExternalLogin?provider=Google" style="color: white;"><i class="bi bi-google"></i>Login with Google</a>
                 </div>
             }
             else

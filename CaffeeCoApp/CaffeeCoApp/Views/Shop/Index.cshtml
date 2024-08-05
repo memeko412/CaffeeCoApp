@@ -17,7 +17,7 @@
             <option value="Coffee Beans">Coffee Beans</option>
             <option value="Coffee Machines">Coffee Machines</option>
             <option value="Grinders">Grinders</option>
-            <option value="Other">Other</option>`
+            <option value="Other">Other</option>
         </select>
     </div>
     <div class="col-lg-2 col-md-4">
@@ -48,9 +48,16 @@
                 <p>Rating: <i class="bi bi-star-fill text-warning"></i>@(product.Rating)(@(product.RatingCount))</p>
                 <a class="btn btn-primary btn-sm mb-2" asp-controller="Shop" asp-action="Details"
                    asp-route-id="@product.Id" role="button">Details</a>
-                <button type="button" class="btn btn-warning btn-sm mb-2" onclick="addToCart(this, @product.Id)">
-                    Add to Cart<i class="bi bi-cart4"></i>
-                </button>
+                @if (@product.Stock > 0) {
+                    <button type="button" class="btn btn-warning btn-sm mb-2" onclick="addToCart(this, @product.Id)">
+                        Add to Cart<i class="bi bi-cart4"></i>
+                    </button>
+                } else
+                {
+                    <button type="button" class="btn btn-secondary btn-sm mb-2" disabled>
+                        Out of Stock<i class="bi bi-cart4"></i>
+                    </button>
+                }
             </div>
         </div>
     }
