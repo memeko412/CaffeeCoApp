@@ -102,7 +102,37 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Checkout</button>
+                    <hr />
+
+                    <div class="row">
+                        <div class="col">
+                            <p>Subtotal:</p>
+                        </div>
+                        <div class="col">
+                            <p class="text-end">$@(ViewBag.Subtotal)</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <p>Shipping:</p>
+                        </div>
+                        <div class="col">
+                            <p class="text-end">$0</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <p>Total:</p>
+                        </div>
+                        <div class="col">
+                            <p class="text-end">$@(ViewBag.Subtotal)</p>
+                        </div> 
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" type="submit">Checkout</button>
+                    </div>
+
                 </form>
             }
         </div>
