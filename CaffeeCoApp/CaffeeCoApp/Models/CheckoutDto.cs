@@ -8,7 +8,7 @@ namespace CaffeeCoApp.Models
         [MaxLength(200)]
         public string ShippingAddress { get; set; } = "";
         public bool IsPickUp { get; set; }
-        [Required]
+        [Required(ErrorMessage = "The Date you selected is not currently available.")]
         [DataType(DataType.Date)]
         public DateTime DeliveryDate { get; set; }
         public int? StoreId { get; set; }

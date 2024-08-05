@@ -88,12 +88,14 @@ namespace CaffeeCoApp.Controllers
 
             if (isPickUp && !IsStoreAvailableForPickup(storeId, deliveryDate))
             {
+                TempData["Error"] = "Store is not available for pickup on the day you selected!";
                 Console.WriteLine("Store is not available for pickup");
                 return RedirectToAction("Index");
             }
 
             if (!isPickUp && !IsValidDeliveryDate(deliveryDate))
             {
+                TempData["Error"] = "Delivery is not available on the day you selected!";
                 Console.WriteLine("Invalid delivery date");
                 return RedirectToAction("Index");
             }
