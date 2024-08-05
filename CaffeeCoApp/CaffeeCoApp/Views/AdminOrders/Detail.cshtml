@@ -1,0 +1,145 @@
+﻿@model Order
+@{
+    var shippingstatus = Model.ShippingStatus;
+
+    string statusBadge = "bg-warning text-dark";
+    if (shippingstatus.Contains("pending"))
+    {
+        statusBadge = "bg-secondary";
+    }
+    else if (shippingstatus.Contains("intransit"))
+    {
+        statusBadge = "bg-info text-dark";
+    }
+    else if (shippingstatus.Contains("delivered"))
+    {
+        statusBadge = "bg-success text-dark";
+    }
+
+    var deliveryMethod = Model.IsPickUp ? "Pick-up" : "Delivery";
+}
+
+<h3 class="text-center mb-4">Order Details</h3>
+
+<a class="btn btn-link" asp-controller="AdminOrders" asp-action="Index">Orders</a>
+
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="border rounded py-3 px-4 h-100">
+            <h3 class="mb-4">Order</h3>
+
+            <div class="row mb-2 pb-2 border-bottom">
+                <div class="col">Order ID</div>
+                <div class="col">@Model.Id</div>
+            </div>
+
+            <div class="row mb-2 pb-2 border-bottom">
+                <div class="col">Delivery Method</div>
+                <div class="col">deliveryMethod</div>
+            </div>
+
+            <div class="row mb-2 pb-2 border-bottom">
+                <div class="col">Delivery Status</div>
+                <div class="col"><span class="badge @statusBadge">@Model.ShippingStatus</span></div>
+            </div>
+
+            <div class="row mb-2 pb-2 border-bottom">
+                <div class="col">Order Date</div>
+                <div class="col">@Model.CreatedAt</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="border rounded py-3 px-4 h-100">
+        <h3 class="mb-4">Client</h3>
+
+            <div class="row mb-2 pb-2 border-bottom">
+                <div class="col">Name</div>
+                <div class="col">
+                    <a asp-controller="Users"
+                    asp-action="Details" asp-route-id="@Model.Client.Id">
+                        @Model.Client.FirstName @Model.Client.LastName
+                    </a>
+                </div>
+            </div>
+
+
+            <div class="row mb-2 pb-2 border-bottom">
+                <div class="col">Number of Orders</div>
+                <div class="col">@ViewBag.NumOrders</div>
+            </div>
+
+            <div class="row mb-2 pb-2 border-bottom">
+                <div class="col">Email</div>
+                <div class="col">@Model.Client.Email</div>
+            </div>
+
+            <div class="row mb-2 pb-2 border-bottom">
+                <div class="col">Phone</div>
+                <div class="col">@Model.Client.PhoneNumber</div>
+            </div>
+
+            <div class="row mb-2 pb-2 border-bottom">
+                <div class="col">Address</div>
+                <div class="col">@Model.Client.Address</div>
+            </div>
+
+            <div class="row mb-2 pb-2 border-bottom">
+                <div class="col">Registered Date</div>
+                <div class="col">@Model.Client.CreatedAt</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th style="width:150px">Description</th>
+            <th></th>
+            <th style="width:100px">Units</th>
+            <th style="width:100px">Amount</th>
+            <th style="width:100px">Review</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            decimal subtotal = 0;
+            foreach (OrderItem item in Model.Items)
+            {
+                subtotal += item.UnitPrice * item.Quantity;
+                <tr>
+                    <td>
+                        <img src="/products/@item.Product.ImageFileName" width="100" alt="..." />
+                    </td>
+                    <td>
+                        <h4>@item.Product.Name</h4>
+                        @item.Product.Category<br />
+                        $@(item.UnitPrice)
+                    </td>
+                    <td>@item.Quantity</td>
+                    <td>$@(item.UnitPrice * item.Quantity)</td>
+                    <td><i class="bi bi-star text-warning"><i class="bi bi-star text-warning"><i class="bi bi-star text-warning"><i class="bi bi-star text-warning"><i class="bi bi-star text-warning"></i></td>
+                </tr>
+            }
+        }
+
+    </tbody>
+</table>
+
+<div class="ms-auto mb-3" style="width: 250px">
+    <div class="row">
+        <div class="col fw-bold">Subtotal</div>
+        <div class="col text-end">$@subtotal</div>
+    </div>
+    <div class="row">
+        <div class="col fw-bold">Shipping</div>
+        <div class="col text-end">$0</div>
+    </div>
+    <div class="row">
+        <div class="col fw-bold">Total</div>
+        <div class="col text-end">$@subtotal</div>
+    </div>
+</div>
+
+
