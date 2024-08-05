@@ -35,12 +35,14 @@
 
             <div class="row mb-2 pb-2 border-bottom">
                 <div class="col">Delivery Method</div>
-                <div class="col">deliveryMethod</div>
+                <div class="col">@deliveryMethod</div>
             </div>
 
             <div class="row mb-2 pb-2 border-bottom">
                 <div class="col">Delivery Status</div>
-                <div class="col"><span class="badge @statusBadge">@Model.ShippingStatus</span></div>
+                <div class="col"><span class="badge @statusBadge">@Model.ShippingStatus</span>
+                    <a href="#" class="mx-2" data-bs-toggle="modal" data-bs-target="#editShippingStatusModal">Edit</a>
+                </div>
             </div>
 
             <div class="row mb-2 pb-2 border-bottom">
@@ -142,4 +144,32 @@
     </div>
 </div>
 
+
+
+<!-- Modal -->
+<div class="modal fade" id="editShippingStatusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Shipping Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="get" asp-controller="AdminOrders" asp-action="Edit">
+                    <input type="hidden" name="id" value="@Model.Id"/>
+                    <label>Shipping Status</label>
+                    <select class="form-select mb-2" name="shippingStatus" asp-for="ShippingStatus">
+                        <option value="pending">pending</option>
+                        <option value="intransit">intransit</option>
+                        <option value="delivered">delivered</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary mt-3">Save</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 

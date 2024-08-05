@@ -3,6 +3,7 @@ using CaffeeCoApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata.Ecma335;
 
 namespace CaffeeCoApp.Controllers
 {
@@ -52,6 +53,29 @@ namespace CaffeeCoApp.Controllers
 
             ViewBag.NumOrders = context.Orders.Where(o => o.ClientId == order.ClientId).Count();
             return View(order);
+        }
+
+        public IActionResult Edit(int id, string? shippingStatus)
+        {
+            string[] validStatus = { "pending", "intransit", "delivered"};
+            var order = context.Orders.Find(id);
+            if (order == null) {
+                Console.WriteLine("Order is not found!");
+                return RedirectToAction("Index");
+            }
+            if (shippingStatus == null) {
+                Console.WriteLine("Invalid Shipping Status!");
+                return RedirectToAction("Detail", new { id });
+            }
+
+            Console.WriteLine("!!!!!!" + shippingStatus);
+            if (shippingStatus != null)
+            {
+                order.ShippingStatus = shippingStatus;
+            }
+            context.SaveChanges();
+            
+            return RedirectToAction("Detail", new { id });
         }
     }
 }
