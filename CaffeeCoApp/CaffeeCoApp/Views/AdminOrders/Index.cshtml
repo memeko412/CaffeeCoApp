@@ -1,0 +1,67 @@
+﻿
+@{
+}
+
+<h3 class="text-center mb-4">List of Orders</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Client</th>
+            <th>Units</th>
+            <th>Total</th>
+            <th>Delivery Method</th>
+            <th>Shipping Status</th>
+            <th>Order Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (Order order in ViewBag.Orders)
+        {
+            int count = 0;
+            decimal total = 0;
+            foreach (OrderItem item in order.Items)
+            {
+                count += item.Quantity;
+                total += item.Quantity * item.UnitPrice;
+            }
+            var deliveryMethod = order.IsPickUp ? "Pick-up" : "Delivery";
+
+            <tr>
+                <td>@order.Id</td>
+                <td>@(order.Client.FirstName + " " + order.Client.LastName)</td>
+                <td>@count</td>
+                <td>$@total</td>
+                <td>@deliveryMethod</td>
+                <td>
+                    @{
+                        var shippingstatus = @order.ShippingStatus;
+
+                        string statusBadge = "bg-warning text-dark";
+                        if (shippingstatus.Contains("pending"))
+                        {
+                            statusBadge = "bg-secondary";
+                        }
+                        else if (shippingstatus.Contains("intransit"))
+                        {
+                            statusBadge = "bg-info text-dark";
+                        }
+                        else if (shippingstatus.Contains("delivered"))
+                        {
+                            statusBadge = "bg-success text-dark";
+                        }
+
+                        <span class="badge @statusBadge">@order.ShippingStatus</span>
+                    }
+                </td>
+                <td>@order.CreatedAt.ToString("MM/dd/yyyy")</td>
+                <td>
+                    <a class="btn btn-primary btn-sm" asp-controller="AdminOrders" asp-action="Details" asp-route-id="@order.Id">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

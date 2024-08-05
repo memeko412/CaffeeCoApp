@@ -155,7 +155,8 @@ namespace CaffeeCoApp.Controllers
                 ShippingAddress = deliveryAddress,
                 DeliveryDate = deliveryDate,
                 CreatedAt = DateTime.Now,
-                Store = context.Stores.Find(storeId)
+                Store = context.Stores.Find(storeId),
+                ShippingStatus = "pending"
             };
             context.Orders.Add(order);
             context.SaveChanges();
