@@ -121,7 +121,16 @@
                     </td>
                     <td>@item.Quantity</td>
                     <td>$@(item.UnitPrice * item.Quantity)</td>
-                    <td><i class="bi bi-star text-warning"><i class="bi bi-star text-warning"><i class="bi bi-star text-warning"><i class="bi bi-star text-warning"><i class="bi bi-star text-warning"></i></td>
+                    <td>
+                        @if (item.Rating == null)
+                        {
+                            <i class="bi bi-star text-warning">Not rated</i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-star-fill text-warning">@item.Rating</i>
+                        }
+                    </td>
                 </tr>
             }
         }
