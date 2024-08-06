@@ -1,6 +1,7 @@
 ﻿@model CheckoutDto
 @{
     var currentDate = DateTime.Now.ToString("yyyy-MM-dd");
+    var googleMapsKey = ViewData["GoogleMapsKey"];
 }
 
 <div class="row border rounded-3">
@@ -275,27 +276,24 @@
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (position) {
                     var userLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                    var distance = google.maps.geometry.spherical.computeDistanceBetween(userLocation, storeLocation) / 1000; // distance in kilometers
+                    var distance = google.maps.geometry.spherical.computeDistanceBetween(userLocation, storeLocation) / 1000; 
                     document.getElementById("distance").textContent = distance.toFixed(2) + " km";
                 });
             }
         }
     }
 
-    // Show fields on page load
     showFields();
 
-    // Load Google Maps script
     function loadGoogleMapsApi() {
         var script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCLRLOFgDz1enNnXY7zlPo8dFrMq3KPG1A&libraries=geometry&callback=initMap`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=@googleMapsKey&libraries=geometry&callback=initMap`;
         script.async = true;
         script.defer = true;
         document.head.appendChild(script);
     }
 
     function initMap() {
-        // Initialize the map when the script loads
     }
 
     window.onload = loadGoogleMapsApi;

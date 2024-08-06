@@ -9,11 +9,13 @@ namespace CaffeeCoApp.Controllers
     public class StoresController : Controller
     {
         private readonly ApplicationDbContext context;
+        private readonly IConfiguration configuration;
         private readonly int pagesize = 10;
 
-        public StoresController(ApplicationDbContext context)
+        public StoresController(ApplicationDbContext context, IConfiguration configuration)
         {
             this.context = context;
+            this.configuration = configuration;
         }
         public IActionResult Index(int? pageIndex, string? search, string? column, string? orderBy)
         {
@@ -35,12 +37,16 @@ namespace CaffeeCoApp.Controllers
 
         public IActionResult Create()
         {
+            var apiKey = configuration["GoogleMaps:ApiKey"];
+            ViewData["GoogleMapsKey"] = apiKey;
             return View();
         }
 
         [HttpPost]
         public IActionResult Create(Store store)
         {
+            var apiKey = configuration["GoogleMaps:ApiKey"];
+            ViewData["GoogleMapsKey"] = apiKey;
             if (!ModelState.IsValid) return View(store);
 
             context.Stores.Add(store);
@@ -52,6 +58,8 @@ namespace CaffeeCoApp.Controllers
 
         public IActionResult Details(int? id)
         {
+            var apiKey = configuration["GoogleMaps:ApiKey"];
+            ViewData["GoogleMapsKey"] = apiKey;
             var store = context.Stores.Find(id);
             return View(store);
         }

@@ -1,6 +1,6 @@
 ﻿@model Store
 @{
-
+    var googleMapsKey = ViewData["GoogleMapsKey"];
 }
 
 <div class="row">
@@ -47,7 +47,7 @@
 </div>
 
 @section Scripts {
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLRLOFgDz1enNnXY7zlPo8dFrMq3KPG1A&libraries=places&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=@googleMapsKey&libraries=places&callback=initMap" async defer></script>
     <script>
         async function initMap() {
             const mapElement = document.getElementById('map');

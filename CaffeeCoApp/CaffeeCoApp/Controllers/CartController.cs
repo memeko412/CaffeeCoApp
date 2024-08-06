@@ -11,15 +11,19 @@ namespace CaffeeCoApp.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<AppUser> userManager;
+        private readonly IConfiguration configuration;
 
-        public CartController(ApplicationDbContext context, UserManager<AppUser> userManager)
+        public CartController(ApplicationDbContext context, UserManager<AppUser> userManager, IConfiguration configuration)
         {
             this.context = context;
             this.userManager = userManager;
+            this.configuration = configuration;
         }
 
         public IActionResult Index()
         {
+            var apiKey = configuration["GoogleMaps:ApiKey"];
+            ViewData["GoogleMapsKey"] = apiKey;
             List<OrderItem> cartItems = CartHelper.GetCartItems(Request, Response, context);
             decimal subtotal = CartHelper.GetSubTotal(cartItems);
             List<Store> stores = context.Stores.ToList();
@@ -35,6 +39,8 @@ namespace CaffeeCoApp.Controllers
         [HttpPost]
         public IActionResult Index(CheckoutDto checkoutDto)
         {
+            var apiKey = configuration["GoogleMaps:ApiKey"];
+            ViewData["GoogleMapsKey"] = apiKey;
             List<OrderItem> cartItems = CartHelper.GetCartItems(Request, Response, context);
             decimal subtotal = CartHelper.GetSubTotal(cartItems);
             List<Store> stores = context.Stores.ToList();
@@ -67,6 +73,8 @@ namespace CaffeeCoApp.Controllers
 
         public IActionResult Confirm()
         {
+            var apiKey = configuration["GoogleMaps:ApiKey"];
+            ViewData["GoogleMapsKey"] = apiKey;
             List<OrderItem> cartItems = CartHelper.GetCartItems(Request, Response, context);
             decimal total = CartHelper.GetSubTotal(cartItems);
             int cartSize = 0;
@@ -114,6 +122,8 @@ namespace CaffeeCoApp.Controllers
         [Authorize]
         public async Task<IActionResult> Confirm(int? a)
         {
+            var apiKey = configuration["GoogleMaps:ApiKey"];
+            ViewData["GoogleMapsKey"] = apiKey;
             var cartItems = CartHelper.GetCartItems(Request, Response, context);
 
             string deliveryAddress = TempData["DeliveryAddress"] as string ?? "";
