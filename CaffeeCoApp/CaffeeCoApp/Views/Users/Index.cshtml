@@ -50,8 +50,11 @@
         <input class="form-control me-2" type="search" name="search" value="@search" placeholder="Search by user's name" aria-label="Search">
         <button class="btn btn-outline-success" type="submit">Search</button>
     </div>
-
 </form>
+
+<div class="col-lg-6 col-md-12 align-items-end">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#siteMailModal">Send Site Mail</button>
+</div>
  
 
 <script>
@@ -65,6 +68,30 @@
         }
         window.location.href = "?search=@(search)&column=" + column + "&orderBy=" + orderBy;
     }
+
+    $(document).ready(function () {
+        $('#siteMailForm').submit(function (event) {
+            event.preventDefault(); // Prevent the default form submission
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: $(this).attr('method'),
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $('#siteMailModal').modal('hide'); // Close the modal
+                    // Optionally, display a success message
+                    alert('Emails sent successfully!');
+                },
+                error: function (response) {
+                    // Optionally, display an error message
+                    alert('Error sending emails. Please try again.');
+                }
+            });
+        });
+    });
 </script>
 
 <table class="table">
@@ -128,3 +155,41 @@
         }
     </ul>
 </nav>
+
+<!-- Modal -->
+<div class="modal fade" id="siteMailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Compose Site Mail</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="siteMailForm" method="post" enctype="multipart/form-data" asp-action="SendSiteMail">
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject</label>
+                        <input type="text" class="form-control" id="subject" name="subject" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="textContent" class="form-label">Text Content</label>
+                        <textarea class="form-control" id="textContent" name="textContent" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="attachmentFile" class="form-label">Attachment</label>
+                        <input type="file" class="form-control" id="attachmentFile" name="attachmentFile">
+                    </div>
+                    @foreach (var user in Model)
+                    {
+                        <input type="hidden" name="toEmailsList[]" value="@user.Email">
+                        <input type="hidden" name="toNameList[]" value="@(user.FirstName + ' ' + user.LastName)">
+                    }
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Send Mail</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

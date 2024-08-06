@@ -1,4 +1,5 @@
 ﻿using CaffeeCoApp.Models;
+using CaffeeCoApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +13,14 @@ namespace CaffeeCoApp.Controllers
     {
         private readonly UserManager<AppUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
+        private readonly IConfiguration configuration;
         private readonly int pagesize = 10;
 
-        public UsersController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
+        public UsersController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
+            this.configuration = configuration;
         }
 
         public async Task<IActionResult> Index(int? pageIndex, string? search, string? column, string? orderBy, string? role)
@@ -182,6 +185,39 @@ namespace CaffeeCoApp.Controllers
             TempData["Error"] = "Something went wrong while deleting this account: " + result.Errors.First().Description;
             return RedirectToAction("Details", "Users", new { id });
 
+        }
+
+        public IActionResult SendSiteMail(string subject, string textContent, IFormFile attachmentFile, List<string> toEmailsList, List<string> toNameList)
+        {
+            if (subject == null || textContent == null)
+            {
+                TempData["Error"] = "Invalid Subject or Body";
+                return RedirectToAction("Index", "Users");
+            }
+
+            if (toEmailsList.Count == 0)
+            {
+                TempData["Error"] = "No recipients specified";
+                return RedirectToAction("Index", "Users");
+            }
+
+            if (toNameList.Count == 0)
+            {
+                TempData["Error"] = "No recipients name specified";
+                return RedirectToAction("Index", "Users");
+            }
+
+            if (toEmailsList.Count != toNameList.Count)
+            {
+                TempData["Error"] = "Invalid email-name pair";
+                return RedirectToAction("Index", "Users");
+            }
+            string sendername = configuration["EmailSettings:SenderName"] ?? "";
+            string senderemail = configuration["EmailSettings:SenderEmail"] ?? "";
+            EmailService.BatchSendEmailsWithAttachment(sendername, senderemail, toEmailsList, toNameList, textContent, subject, attachmentFile);
+
+            TempData["Success"] = "Sitemail sent successfully";
+            return RedirectToAction("Index", "Users");
         }
 
     }
