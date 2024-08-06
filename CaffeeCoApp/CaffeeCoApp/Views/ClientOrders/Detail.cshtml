@@ -60,7 +60,7 @@
             <th></th>
             <th style="width:100px">Units</th>
             <th style="width:100px">Amount</th>
-            <th style="width:100px">Review</th>
+            <th style="width:150px">Review</th>
         </tr>
     </thead>
     <tbody>
@@ -80,11 +80,21 @@
                     </td>
                     <td>@item.Quantity</td>
                     <td>$@(item.UnitPrice * item.Quantity)</td>
-                    <td><i class="bi bi-star text-warning"><i class="bi bi-star text-warning"><i class="bi bi-star text-warning"><i class="bi bi-star text-warning"><i class="bi bi-star text-warning"></i></td>
+                    <td>
+                        @if (item.Rating == null)
+                        {
+                            <button type="button" class="btn btn-primary rate-btn" data-bs-toggle="modal" data-bs-target="#ratingModal" data-orderid="@Model.Id" data-orderitemid="@item.Id">
+                                Click to rate <i class="bi bi-star text-warning"> </i>
+                            </button>
+                        }
+                        else
+                        {
+                            <i class="bi bi-star-fill text-warning">@item.Rating</i>
+                        }
+                    </td>
                 </tr>
             }
         }
-
     </tbody>
 </table>
 
@@ -103,7 +113,82 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ratingModalLabel">Rate Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="rating">
+                    <i class="bi bi-star star" data-value="1"></i>
+                    <i class="bi bi-star star" data-value="2"></i>
+                    <i class="bi bi-star star" data-value="3"></i>
+                    <i class="bi bi-star star" data-value="4"></i>
+                    <i class="bi bi-star star" data-value="5"></i>
+                </div>
+                <input type="hidden" id="selectedRating" value="0" />
+                <input type="hidden" id="selectedOrderId" value="0" />
+                <input type="hidden" id="selectedOrderItemId" value="0" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveRatingBtn">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.star').click(function () {
+                var rating = $(this).data('value');
+                $('#selectedRating').val(rating);
+                $('.star').each(function () {
+                    if ($(this).data('value') <= rating) {
+                        $(this).removeClass('bi-star').addClass('bi-star-fill text-warning');
+                    } else {
+                        $(this).removeClass('bi-star-fill text-warning').addClass('bi-star');
+                    }
+                });
+            });
 
+            $('.rate-btn').click(function () {
+                var orderId = $(this).data('orderid');
+                var orderItemId = $(this).data('orderitemid');
+                $('#selectedOrderId').val(orderId);
+                $('#selectedOrderItemId').val(orderItemId);
+            });
 
+            $('#saveRatingBtn').click(function () {
+                var rating = $('#selectedRating').val();
+                var orderId = $('#selectedOrderId').val();
+                var orderItemId = $('#selectedOrderItemId').val();
+                if (rating > 0 && orderId > 0 && orderItemId > 0) {
+                    $.ajax({
+                        url: '@Url.Action("RateProduct", "ClientOrders")',
+                        type: 'POST',
+                        data: {
+                            orderId: orderId,
+                            orderItemId: orderItemId,
+                            rating: rating
+                        },
+                        success: function (result) {
+                            alert('Rating saved successfully!');
+                            location.reload();
+                        },
+                        error: function (xhr, status, error) {
+                            alert('An error occurred while saving the rating.');
+                        }
+                    });
+                } else {
+                    alert('Please select a rating.');
+                }
+            });
+        });
+    </script>
+}

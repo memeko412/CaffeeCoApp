@@ -67,6 +67,35 @@ namespace CaffeeCoApp.Controllers
 
             return View(order);
         }
+
+        [HttpPost]
+        public IActionResult RateProduct(int orderId, int orderItemId, int rating)
+        {
+            var order = context.Orders.Include(o => o.Items).ThenInclude(oi => oi.Product).FirstOrDefault(o => o.Id == orderId);
+            if (order == null)
+            {
+                Console.WriteLine("Order is not found!");
+                return Json(new { success = false });
+            }
+            var orderItem = order.Items.FirstOrDefault(oi => oi.Id == orderItemId);
+            if (orderItem == null)
+            {
+                Console.WriteLine("OrderItem is not found!");
+                return Json(new { success = false });
+            }
+            var product = orderItem.Product;
+            if (product == null)
+            {
+                Console.WriteLine("Product is not found!");
+                return Json(new { success = false });
+            }
+
+            product.Rating = (product.Rating * product.RatingCount + rating) / (product.RatingCount + 1);
+            product.RatingCount++;
+            orderItem.Rating = rating;
+            context.SaveChanges();
+            return Json(new { success = true });
+        }
     }
 
 
