@@ -23,6 +23,8 @@ namespace CaffeeCoApp.Controllers
             IQueryable<Order> query = context.Orders.Include(o => o.Client)
                 .Include(o => o.Items).OrderByDescending(o => o.Id);
 
+            // Pagination
+
             if (pageIndex <= 0)
             {
                 pageIndex = 1;
@@ -68,7 +70,6 @@ namespace CaffeeCoApp.Controllers
                 return RedirectToAction("Detail", new { id });
             }
 
-            Console.WriteLine("!!!!!!" + shippingStatus);
             if (shippingStatus != null)
             {
                 order.ShippingStatus = shippingStatus;

@@ -35,6 +35,7 @@ namespace CaffeeCoApp.Controllers
                 query = query.Where(user => roleUsers.Contains(user));
             }
 
+            // Sort and filter
             string[] validCols = { "Name", "Email", "CreatedAt" };
             string[] validOrderBys = { "desc", "asc" };
 
